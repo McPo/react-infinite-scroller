@@ -45,8 +45,19 @@ export default class InfiniteScroll extends Component {
     this.attachScrollListener();
   }
 
+  componentWillUpdate() {
+    if (this.props.isReverse) {
+      let scrollEl = this.props.useWindow ? window : this.scrollComponent;
+      this.scrollTopDistanceFromBottom = scrollEl.scrollHeight - scrollEl.scrollTop;
+    }
+  }
+
   componentDidUpdate() {
     this.attachScrollListener();
+    if (this.props.isReverse) {
+      let scrollEl = this.props.useWindow ? window : this.scrollComponent;
+      scrollEl.scrollTop = scrollEl.scrollHeight - this.scrollTopDistanceFromBottom;
+    }
   }
 
   componentWillUnmount() {
@@ -61,7 +72,7 @@ export default class InfiniteScroll extends Component {
   detachScrollListener() {
     let scrollEl = window;
     if (this.props.useWindow === false) {
-      scrollEl = this.scrollComponent.parentNode;
+      scrollEl = this.scrollComponent;
     }
 
     scrollEl.removeEventListener('scroll', this.scrollListener, this.props.useCapture);
@@ -75,7 +86,7 @@ export default class InfiniteScroll extends Component {
 
     let scrollEl = window;
     if (this.props.useWindow === false) {
-      scrollEl = this.scrollComponent.parentNode;
+      scrollEl = this.scrollComponent;
     }
 
     scrollEl.addEventListener('scroll', this.scrollListener, this.props.useCapture);
@@ -104,9 +115,9 @@ export default class InfiniteScroll extends Component {
                      window.innerHeight);
       }
     } else if (this.props.isReverse) {
-      offset = el.parentNode.scrollTop;
+      offset = el.scrollTop;
     } else {
-      offset = el.scrollHeight - el.parentNode.scrollTop - el.parentNode.clientHeight;
+      offset = el.scrollHeight - el.scrollTop - el.clientHeight;
     }
 
     if (offset < Number(this.props.threshold)) {
