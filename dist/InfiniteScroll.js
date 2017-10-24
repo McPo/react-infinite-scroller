@@ -43,9 +43,21 @@ var InfiniteScroll = function (_Component) {
       this.attachScrollListener();
     }
   }, {
+    key: 'componentWillUpdate',
+    value: function componentWillUpdate() {
+      if (this.props.isReverse) {
+        var scrollEl = this.props.useWindow ? window : this.scrollComponent;
+        this.scrollTopDistanceFromBottom = scrollEl.scrollHeight - scrollEl.scrollTop;
+      }
+    }
+  }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate() {
       this.attachScrollListener();
+      if (this.props.isReverse) {
+        var scrollEl = this.props.useWindow ? window : this.scrollComponent;
+        scrollEl.scrollTop = scrollEl.scrollHeight - this.scrollTopDistanceFromBottom;
+      }
     }
   }, {
     key: 'componentWillUnmount',
@@ -65,7 +77,7 @@ var InfiniteScroll = function (_Component) {
     value: function detachScrollListener() {
       var scrollEl = window;
       if (this.props.useWindow === false) {
-        scrollEl = this.scrollComponent.parentNode;
+        scrollEl = this.scrollComponent;
       }
 
       scrollEl.removeEventListener('scroll', this.scrollListener, this.props.useCapture);
@@ -80,7 +92,7 @@ var InfiniteScroll = function (_Component) {
 
       var scrollEl = window;
       if (this.props.useWindow === false) {
-        scrollEl = this.scrollComponent.parentNode;
+        scrollEl = this.scrollComponent;
       }
 
       scrollEl.addEventListener('scroll', this.scrollListener, this.props.useCapture);
@@ -105,9 +117,9 @@ var InfiniteScroll = function (_Component) {
           offset = this.calculateTopPosition(el) + (el.offsetHeight - scrollTop - window.innerHeight);
         }
       } else if (this.props.isReverse) {
-        offset = el.parentNode.scrollTop;
+        offset = el.scrollTop;
       } else {
-        offset = el.scrollHeight - el.parentNode.scrollTop - el.parentNode.clientHeight;
+        offset = el.scrollHeight - el.scrollTop - el.clientHeight;
       }
 
       if (offset < Number(this.props.threshold)) {
